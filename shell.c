@@ -12,7 +12,8 @@
 /* Date: Nov 18, 2022                                        */
 /*************************************************************/
 
-void runLine(char *line);
+void runLine(char **args);
+char **fucIt(char *line, int *and);
 
 int main() {
 	char *werd = malloc(2);
@@ -61,13 +62,19 @@ int main() {
 
 		werd[len] = '\0';
 
+		int ampersand = 0;
+		char **args = fucIt(werd, &ampersand);
+
 		if(fork() == 0) {
-			runLine(werd);
+			runLine(args);
+			free(args);
 			end = 1;
 			break;
 		} else {
 			wait(NULL);
 		}
+
+		free(args);
 	}
 
 	free(werd);
@@ -75,35 +82,15 @@ int main() {
 	return 0;
 }
 
-/********************************************/
-/* Processes the  command the user inputted */
-/********************************************/
-void runLine(char *line) {
+char **fucIt(char *line, int *and) {
 	char spaceBar[2] = " ";
 	char *each;
 
 	each = strtok(line, spaceBar);
 
-	if(access(each, F_OK) != 0) {
-		char *newShit = malloc(10 + strlen(each));
-		strcpy(newShit, "/bin/");
-		strcat(newShit, each);
-		if(access(newShit, F_OK) != 0) {
-			strcpy(newShit, "/usr/bin/");
-			strcat(newShit, each);
-			if(access(newShit, F_OK) != 0) {
-				printf("%s: No such file or directory\n", each);
-				free(newShit);
-				return;
-			}
-		}
-		free(newShit);
-	}
-
 	size_t max = 2;
 	int i;
 	char **args = malloc(sizeof(char *) * max);
-	//char *env[] = { (char *)0 };
 
 	for(i = 0; each != NULL; i++) {
 		if(i + 1 >= max) {
@@ -116,8 +103,40 @@ void runLine(char *line) {
 		each = strtok(NULL, spaceBar);
 	}
 
-	args[i] = NULL;
-	execvp(args[0], args);
+	if(strcmp(args[i-1], "&") == 0) {
+		*and = 1;
+		args[i-1] = NULL;
+		return args;
+	}
+	if (args[i-1][strlen(args[i-1])-1] == '&') {
+		*and = 1;
+		args[i-1][strlen(args[i-1])-1] = '\0';
+	}
 
-	free(args);
+
+	args[i] = NULL;
+	return args;
+}
+
+/********************************************/
+/* Processes the  command the user inputted */
+/********************************************/
+void runLine(char **args) {
+	if(access(args[0], F_OK) != 0) {
+		char *newShit = malloc(10 + strlen(args[0]));
+		strcpy(newShit, "/bin/");
+		strcat(newShit, args[0]);
+		if(access(newShit, F_OK) != 0) {
+			strcpy(newShit, "/usr/bin/");
+			strcat(newShit, args[0]);
+			if(access(newShit, F_OK) != 0) {
+				printf("%s: No such file or directory\n", args[0]);
+				free(newShit);
+				return;
+			}
+		}
+		free(newShit);
+	}
+
+	execvp(args[0], args);
 }
