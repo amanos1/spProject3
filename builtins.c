@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <children.c>
 
 char* ListOfCommands[6];
 
@@ -14,7 +15,7 @@ ListOfCommands[5] = "kill";
 
 
 //Run a suspended job in background
-int background(char* jobId){
+int background(int jobId){
 	//argv[0] should be the program name
 	//argv should be the array of arguments for the program
 	//jobId will be used to look up information above
@@ -65,7 +66,7 @@ int exit(){
 }	
 
 //Run a suspended or background job in the foreground
-int foreground(pid_t pid){
+int foreground(int jobId){
 	int status;
 	//argv[0] should be the program name
 	//argv should be the array of arguments for the program
@@ -92,15 +93,15 @@ int foreground(pid_t pid){
 
 //List jobs with job id, process id, current status, and command
 int jobs(){
-	
-
+	printChildren();
+	return 0;
 }
 
 
 //Send SIGTERM to the given job
-int kill(pid_t pid){
-	printf("Killing process %d", pid);
-	kill(pid[i], SIGTERM);
+int kill(int jobId){
+	printf("Killing process %d", jobId);
+	kill(jobId, SIGTERM);
 
 	return 0;
 }
@@ -128,3 +129,4 @@ int lookup(char** cmd){
 	}
 	return 0;
 }
+
