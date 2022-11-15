@@ -15,6 +15,21 @@ ListOfCommands[5] = "kill";
 
 //Run a suspended job in background
 int background(char* jobId){
+	//argv[0] should be the program name
+	//argv should be the array of arguments for the program
+	//jobId will be used to look up information above
+	pid_t child_process = fork();
+	if(child_process < 0){
+		printf("Cannot fork\n");
+		return 1;
+	}
+	else if(child_process == 0){
+		if(execvp(argv[0], argv) < 0){
+			printf("Cannot run program\n");
+			return 1;
+		}
+	}
+	return 0;
 }
 
 //Change directory
@@ -51,8 +66,27 @@ int exit(){
 
 //Run a suspended or background job in the foreground
 int foreground(pid_t pid){
-	
-
+	int status;
+	//argv[0] should be the program name
+	//argv should be the array of arguments for the program
+	//jobId will be used to look up information above
+	pid_t child_process = fork();
+	if(child_process < 0){
+		printf("Cannot fork\n");
+		return 1;
+	}
+	else if(child_process == 0){
+		if(execvp(argv[0], argv) < 0){
+			printf("Cannot run program\n");
+		}
+		return 1;
+	}
+	else{
+		while(wait(&status) != child_process){
+			;
+		}
+	}
+	return 0;
 
 }
 
@@ -94,4 +128,3 @@ int lookup(char** cmd){
 	}
 	return 0;
 }
-
