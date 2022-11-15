@@ -57,6 +57,13 @@ int getPid(int jid) {
 		return childList[jid]->pid;
 	return 0;
 }
+/**********************************************************/
+/* return command and args*/
+
+char* findCommand(int pid){
+	for(int i = 0; i < sizeof(childList) / 
+}
+/**********************************************************/
 
 /**********************************************************/
 /* Prints the alive children when the jobs command is run */
