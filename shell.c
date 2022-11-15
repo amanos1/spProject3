@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <wait.h>
+#include <signal.h>
 
 /*************************************************************/
 /* This program is a crude implementation of a linnux shell. */
@@ -63,15 +64,21 @@ int main() {
 		werd[len] = '\0';
 
 		int ampersand = 0;
-		char **args = fucIt(werd, &ampersand);
+		char **args = parseLine(werd, &ampersand);
 
-		if(fork() == 0) {
+		if(/*ampersand == 0 && */lookup(args) == 1) continue;
+
+		int myChild = fork();
+		if(myChild == 0) {
 			runLine(args);
 			free(args);
 			end = 1;
 			break;
 		} else {
-			wait(NULL);
+			if(ampersand == 0) {
+				wait(NULL);
+			} else {
+			}
 		}
 
 		free(args);
@@ -82,7 +89,7 @@ int main() {
 	return 0;
 }
 
-char **fucIt(char *line, int *and) {
+char **parseLine(char *line, int *and) {
 	char spaceBar[2] = " ";
 	char *each;
 
