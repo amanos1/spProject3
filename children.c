@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 typedef struct Child {
 	int pid;
@@ -7,13 +8,13 @@ typedef struct Child {
 	int bg;
 	int alive; //0 if the child has been terminated, else 1
 	char *command;
-}
+} Child;
 
-char **statuses[2] = {"Stopped", "Running"};
+char *statuses[] = {"Stopped", "Running"};
 
 int childCount; // amount of children 
 int maxChildren;
-Child *childList[];
+Child **childList;
 
 /****************************************/
 /* Adds process to the list of children */
@@ -22,7 +23,7 @@ int addChild(int id, char **input, int bg) {
 	//initalize the array if it has not been already
 	if(maxChildren == 0) {
 		maxChildren = 2;
-		childList = malloc(sizeof(Child*) * maxChildren);
+		childList = malloc(sizeof(Child *) * maxChildren);
 	}
 
 	int stringLen = 0;
@@ -74,7 +75,7 @@ int findCommand(int jid){
 /**********************************************************/
 /* Update background tag NEEDS A LOT OF WORK*/
 /**********************************************************/
-void updateBackground(int jid){
+int updateBackground(int jid){
 	for(int i = 0; i < childCount; i++){
 		if(childList[i]->pid == jid){
 			childList[i]->bg = 1;
@@ -115,7 +116,7 @@ void emptyOut() {
 	for(int i = 0; i < childCount; i++) {
 		char *command = childList[i]->command;
 		childList[i]->command = NULL;
-		Child c = childList[i];
+		Child *c = childList[i];
 		childList[i] = NULL;
 		free(command);
 		free(c);

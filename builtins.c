@@ -2,20 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <children.c>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wait.h>
+#include <signal.h>
 
-char* ListOfCommands[6];
+void printChildren();
 
-ListOfCommands[0] = "bg";
-ListOfCommands[1] = "cd";
-ListOfCommands[2] = "exit";
-ListOfCommands[3] = "fg";
-ListOfCommands[4] = "jobs";
-ListOfCommands[5] = "kill";
-
+char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 
 //Run a suspended job in background
-int background(int jobId){
+int background(char **argv){
 	//argv[0] should be the program name
 	//argv should be the array of arguments for the program
 	//jobId will be used to look up information above
@@ -34,39 +31,40 @@ int background(int jobId){
 }
 
 //Change directory
-int changeDir(char* path){
+int changeDir(char **argv){
+	char *path = argv[1];
 	//Given absolute path
 	if(path[0] == '/'){
 		if(chdir(path) == -1){
-			printf("%s : %s\n", path, sterror(errno));
+			printf("%s : %s\n", path, strerror(errno));
 		}
 		setenv("PWD", path, 1);
 	}
 	//Given relative path
 	else if(path[0] == '.'){
 		if(chdir(path) == -1){
-			printf("%s : %s\n", path, sterror(errno));
+			printf("%s : %s\n", path, strerror(errno));
 		}
 		setenv("PWD", path, 1);
 	}
 	//Given no path
 	else if(path == NULL){
 		if(chdir(getenv("HOME")) == -1){
-			printf("%s : %s\n", path, sterror(errno));
+			printf("%s : %s\n", path, strerror(errno));
 		}
-		setenv("PWD", getenv("HOME"));
+		setenv("PWD", getenv("HOME"), 1);
 	}
 	return 0;
 }	
 
 //Exit shell
-int exit(){
+int leave(){
 	
 	exit(0);
 }	
 
 //Run a suspended or background job in the foreground
-int foreground(int jobId){
+int foreground(char **argv){
 	int status;
 	//argv[0] should be the program name
 	//argv should be the array of arguments for the program
@@ -99,8 +97,10 @@ int jobs(){
 
 
 //Send SIGTERM to the given job
-int kill(int jobId){
+int murder(char **argv){
 	//Might need to change status in childList?
+	int jobId;
+	sscanf(argv[1], "%i", &jobId);
 	printf("Killing process %d", jobId);
 	kill(jobId, SIGTERM);
 
@@ -116,7 +116,7 @@ int lookup(char** cmd){
 		changeDir(cmd);
 		return 1;
 	} if(strcmp(ListOfCommands[2], cmd[0]) == 0){
-		exit();
+		leave();
 		return 1;
 	} if(strcmp(ListOfCommands[3], cmd[0]) == 0){
 		foreground(cmd);
@@ -125,7 +125,7 @@ int lookup(char** cmd){
 		jobs();
 		return 1;
 	} if(strcmp(ListOfCommands[5], cmd[0]) == 0){
-		kill(cmd);
+		murder(cmd);
 		return 1;
 	}
 	return 0;
