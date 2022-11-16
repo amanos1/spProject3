@@ -58,12 +58,32 @@ int getPid(int jid) {
 	return 0;
 }
 /**********************************************************/
-/* return command and args*/
-
-char* findCommand(int pid){
-	for(int i = 0; i < sizeof(childList) / 
-}
+/* Return command NEEDS A LOT OF WORK*/ 
 /**********************************************************/
+
+int findCommand(int jid){
+	for(int i = 0; i < childCount; i++){
+		if(childList[i]->pid == jid){
+			return childList[i]->pid;
+		}
+	}
+	return 1;
+	
+}
+
+/**********************************************************/
+/* Update background tag NEEDS A LOT OF WORK*/
+/**********************************************************/
+void updateBackground(int jid){
+	for(int i = 0; i < childCount; i++){
+		if(childList[i]->pid == jid){
+			childList[i]->bg = 1;
+			break;
+		}
+	}
+	return 0;
+	
+}
 
 /**********************************************************/
 /* Prints the alive children when the jobs command is run */
