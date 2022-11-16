@@ -113,8 +113,12 @@ void freeThemAll() {
 /*************************************************/
 void emptyOut() {
 	for(int i = 0; i < childCount; i++) {
-		free(childList[i]->command);
-		free(childList[i]);
+		char *command = childList[i]->command;
+		childList[i]->command = NULL;
+		Child c = childList[i];
+		childList[i] = NULL;
+		free(command);
+		free(c);
 	}
 	childCount = 0;
 }
