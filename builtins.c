@@ -100,6 +100,7 @@ int jobs(){
 
 //Send SIGTERM to the given job
 int kill(int jobId){
+	//Might need to change status in childList?
 	printf("Killing process %d", jobId);
 	kill(jobId, SIGTERM);
 
