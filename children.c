@@ -19,7 +19,7 @@ Child **childList;
 /****************************************/
 /* Adds process to the list of children */
 /****************************************/
-int addChild(int id, char **input, int bg) {
+void addChild(int id, char **input, int bg) {
 	//initalize the array if it has not been already
 	if(maxChildren == 0) {
 		maxChildren = 2;
@@ -33,15 +33,22 @@ int addChild(int id, char **input, int bg) {
 	}
 
 	Child *c = malloc(sizeof(Child));
-	c->command = malloc(sizeof(stringLen + strAmt + 2));
+	c->command = malloc(sizeof(char) * (stringLen + strAmt + 3));
 	c->pid = id;
 	c->status = 1;
 	c->bg = bg;
 
 	for(int i = 0; i < strAmt; i++) {
+		if(i == 0) { 
+			strcpy(c->command, input[i]);
+			if(i < strAmt - 1) strcat(c->command, " ");
+			continue;
+		}
 		strcat(c->command, input[i]);
 		if(i < strAmt - 1) strcat(c->command, " ");
 	}
+
+	if(bg == 1) strcat(c->command, " &");
 
 	if(childCount >= maxChildren - 1) {
 		maxChildren *= 2;
@@ -50,7 +57,7 @@ int addChild(int id, char **input, int bg) {
 	}
 
 	childList[childCount++] = c;
-	return childCount;
+	printf("[%i] %i", childCount, id);
 }
 
 int getPid(int jid) {
@@ -58,17 +65,17 @@ int getPid(int jid) {
 		return childList[jid]->pid;
 	return 0;
 }
+
 /**********************************************************/
 /* Return command NEEDS A LOT OF WORK*/ 
 /**********************************************************/
-
 int findCommand(int jid){
 	for(int i = 0; i < childCount; i++){
 		if(childList[i]->pid == jid){
 			return childList[i]->pid;
 		}
 	}
-	return 1;
+	return 0;
 	
 }
 

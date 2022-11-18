@@ -8,26 +8,35 @@
 #include <signal.h>
 
 void printChildren();
+int getPid(int jid);
+int findCommand(int jid);
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 
 //Run a suspended job in background
-int background(char **argv){
+void background(char **argv){
 	//argv[0] should be the program name
 	//argv should be the array of arguments for the program
 	//jobId will be used to look up information above
-	pid_t child_process = fork();
-	if(child_process < 0){
-		printf("Cannot fork\n");
-		return 1;
-	}
-	else if(child_process == 0){
-		if(execvp(argv[0], argv) < 0){
-			printf("Cannot run program\n");
-			return 1;
+	char *job = argv[1];
+	int id;
+	if(job[0] == '%') {
+		sscanf(job, "%%%i", &id);
+		id = getPid(id);
+		if(id == 0) {
+			printf("bg: %s: no such job\n", job);
+			return;
+		}
+	} else {
+		sscanf(job, "%i", &id);
+		id = findCommand(id);
+		if(id == 0) {
+			printf("bg: (%s) - no such process\n", job);
+			return;
 		}
 	}
-	return 0;
+
+	kill(id, SIGCONT);
 }
 
 //Change directory
@@ -58,53 +67,67 @@ int changeDir(char **argv){
 }	
 
 //Exit shell
-int leave(){
-	
+void leave(){
 	exit(0);
-}	
+}
 
 //Run a suspended or background job in the foreground
-int foreground(char **argv){
+void foreground(char **argv){
 	int status;
 	//argv[0] should be the program name
 	//argv should be the array of arguments for the program
 	//jobId will be used to look up information above
-	pid_t child_process = fork();
-	if(child_process < 0){
-		printf("Cannot fork\n");
-		return 1;
-	}
-	else if(child_process == 0){
-		if(execvp(argv[0], argv) < 0){
-			printf("Cannot run program\n");
+	char *job = argv[1];
+	int id;
+	if(job[0] == '%') {
+		sscanf(job, "%%%i", &id);
+		id = getPid(id);
+		if(id == 0) {
+			printf("fg: %s: no such job\n", job);
+			return;
 		}
-		return 1;
-	}
-	else{
-		while(wait(&status) != child_process){
-			;
+	} else {
+		sscanf(job, "%i", &id);
+		id = findCommand(id);
+		if(id == 0) {
+			printf("fg: (%s) - no such process\n", job);
+			return;
 		}
 	}
-	return 0;
 
+	kill(id, SIGCONT);
+	waitpid(id, &status, 0);
 }
 
 //List jobs with job id, process id, current status, and command
-int jobs(){
+void jobs(){
 	printChildren();
-	return 0;
 }
 
 
 //Send SIGTERM to the given job
-int murder(char **argv){
+void murder(char **argv){
 	//Might need to change status in childList?
-	int jobId;
-	sscanf(argv[1], "%i", &jobId);
-	printf("Killing process %d", jobId);
-	kill(jobId, SIGTERM);
+	char *job = argv[1];
+	int id;
+	if(job[0] == '%') {
+		sscanf(job, "%%%i", &id);
+		id = getPid(id);
+		if(id == 0) {
+			printf("kill: %s: no such job\n", job);
+			return;
+		}
+	} else {
+		sscanf(job, "%i", &id);
+		id = findCommand(id);
+		if(id == 0) {
+			printf("kill: (%s) - no such process\n", job);
+			return;
+		}
+	}
 
-	return 0;
+	printf("Killing process %d\n", id);
+	kill(id, SIGTERM);
 }
 
 //Find a builtin
@@ -114,9 +137,6 @@ int lookup(char** cmd){
 		return 1;
 	} if(strcmp(ListOfCommands[1], cmd[0]) == 0){
 		changeDir(cmd);
-		return 1;
-	} if(strcmp(ListOfCommands[2], cmd[0]) == 0){
-		leave();
 		return 1;
 	} if(strcmp(ListOfCommands[3], cmd[0]) == 0){
 		foreground(cmd);

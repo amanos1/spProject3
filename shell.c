@@ -14,9 +14,16 @@
 /*************************************************************/
 
 void runLine(char **args);
-char **fucIt(char *line, int *and);
+char **parseLine(char *line, int *and);
+int getPid(int jid);
+int lookup(char** cmd);
+void freeThemAll();
+void unaliveChild(int pid);
+int addChild(int id, char **input, int bg);
 
 int main() {
+	//signal(SIGINT, ctrlc);
+
 	char *werd = malloc(2);
 
 	if (!werd) {
@@ -66,18 +73,27 @@ int main() {
 		int ampersand = 0;
 		char **args = parseLine(werd, &ampersand);
 
-		if(/*ampersand == 0 && */lookup(args) == 1) continue;
+		if(lookup(args) == 1) continue;
+
+		if(strcmp(args[0], "exit") == 0) {
+			freeThemAll();
+			free(args);
+			break;
+		}
 
 		int myChild = fork();
 		if(myChild == 0) {
+			addChild(myChild, args, ampersand);
 			runLine(args);
 			free(args);
-			end = 1;
 			break;
 		} else {
 			if(ampersand == 0) {
-				wait(NULL);
+				int status;
+				waitpid(myChild, &status, 0);
+				unaliveChild(myChild);
 			} else {
+				//signal(SIGCHLD, )
 			}
 		}
 
@@ -115,11 +131,11 @@ char **parseLine(char *line, int *and) {
 		args[i-1] = NULL;
 		return args;
 	}
+
 	if (args[i-1][strlen(args[i-1])-1] == '&') {
 		*and = 1;
 		args[i-1][strlen(args[i-1])-1] = '\0';
 	}
-
 
 	args[i] = NULL;
 	return args;
