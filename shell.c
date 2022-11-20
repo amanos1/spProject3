@@ -16,7 +16,8 @@
 /*
 When the passed line is not given with a relative or absolute path, 
 just check for built-in then in usr/bin and /bin and then say command 
-not found, current is routing to looking for file and printing no file
+not found, current is routing to looking for file and printing no file;
+Signals need block
 */
 
 void runLine(char **args);
