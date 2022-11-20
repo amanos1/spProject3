@@ -6,12 +6,12 @@
 #include <wait.h>
 #include <signal.h>
 
-/*************************************************************/
-/* This program is a crude implementation of a linnux shell. */
-/* It can do many of the basic things a shell can.           */
-/*                                                           */
-/* Date: Nov 18, 2022                                        */
-/*************************************************************/
+/************************************************************/
+/* This program is a crude implementation of a linux shell. */
+/* It can do many of the basic things a shell can.          */
+/*                                                          */
+/* Date: Nov 18, 2022                                       */
+/************************************************************/
 
 void runLine(char **args);
 char **parseLine(char *line, int *and);
@@ -20,6 +20,7 @@ int lookup(char** cmd);
 void freeThemAll();
 void unaliveChild(int pid);
 int addChild(int id, char **input, int bg);
+void checkOnKids();
 
 int main() {
 	//signal(SIGINT, ctrlc);
@@ -69,6 +70,8 @@ int main() {
 		if(end == 1) break;
 
 		werd[len] = '\0';
+
+		checkOnKids();
 
 		int ampersand = 0;
 		char **args = parseLine(werd, &ampersand);

@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 typedef struct Child {
 	int pid;
@@ -110,6 +113,10 @@ void printChildren() {
 /*************************************************************************************/
 void freeThemAll() {
 	for(int i = 0; i < childCount; i++) {
+		if(childList[i]->status == 1) {
+			kill(childList[i]->pid, SIGTERM);
+		}
+
 		free(childList[i]->command);
 		free(childList[i]);
 	}
@@ -119,8 +126,8 @@ void freeThemAll() {
 /*************************************************/
 /* Resets the list after all child processes die */
 /*************************************************/
-void emptyOut() {
-	for(int i = 0; i < childCount; i++) {
+void emptyOut(int newStart) {
+	for(int i = childCount-1; i >= newStart; i--) {
 		char *command = childList[i]->command;
 		childList[i]->command = NULL;
 		Child *c = childList[i];
@@ -128,23 +135,37 @@ void emptyOut() {
 		free(command);
 		free(c);
 	}
-	childCount = 0;
+	childCount = newStart;
 }
 
 /*******************************************/
 /* Removes process to the list of children */
 /*******************************************/
 void unaliveChild(int pid) {
-	int allDead = 1;
+	int clearStart = 0;
 	for(int i = 0; i < childCount; i++) {
 		if(pid == childList[i]->pid) {
 			childList[i]->alive = 0;
 			break;
 		} else if(childList[i]->alive == 1) {
-			allDead = 0;
+			clearStart = i + 1;
 		}
 	}
 
-	if(allDead == 1) emptyOut();
+	if(clearStart != childCount) emptyOut(clearStart);
+}
+
+/********************************************/
+/* Checks all the children in the list      */
+/* to make sure none of them hav terminated */
+/********************************************/
+void checkOnKids() {
+	for(int i = 0; i < childCount; i++) {
+		if(childList[i]->status == 1) {
+			int status;
+			if(waitpid(childList[i]->pid, &status, WNOHANG) > 0)
+				unaliveChild(childList[i]->pid);
+		}
+	}
 }
 
