@@ -156,6 +156,7 @@ void runLine(char **args) {
 			strcpy(newShit, "/usr/bin/");
 			strcat(newShit, args[0]);
 			if(access(newShit, F_OK) != 0) {
+				//Args has some extra stuff that prints that I can remove
 				printf("%s: No such file or directory\n", args[0]);
 				free(newShit);
 				return;
