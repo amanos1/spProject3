@@ -12,6 +12,9 @@ int getPid(int jid);
 int findCommand(int jid);
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
+/*
+I need to fix some of the handling for no arguments given
+*/
 
 //Run a suspended job in background
 void background(char **argv){
