@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 void printChildren();
