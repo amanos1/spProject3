@@ -33,7 +33,6 @@ void suspend(int sig);
 void terminate(int sig);
 void childStopped(int pid);
 void childKilled(int pid, int sig);
-void werj();
 
 int parent = 1;
 int favoriteChild;
@@ -105,7 +104,6 @@ int main() {
 		
 		int myChild = fork();
 		if(myChild == 0) {
-			//werj();
 			runLine(args);
 			free(args);
 			break;
@@ -113,7 +111,6 @@ int main() {
 			parent = 1;
 			addChild(myChild, args, ampersand);
 			if(ampersand == 0) {
-				printf("waaaa\n");
 				favoriteChild = myChild;
 				int status;
 				waitpid(myChild, &status, 0);

@@ -19,10 +19,6 @@ int childCount; // amount of children
 int maxChildren;
 Child **childList;
 
-void werj() {
-	printf("ayo dis shit working dawg?\n");
-}
-
 /**********************************************************/
 /* Prints the alive children when the jobs command is run */
 /**********************************************************/
@@ -111,12 +107,15 @@ int sigcontIt(){
 	return 0;
 }
 
-/**********************************************************/
-/* Return command NEEDS A LOT OF WORK*/ 
-/**********************************************************/
-int findCommand(int jid){
+/*************************************************************/
+/* If the process indicated by pid exists in the child list, */
+/* the function will return the same pid                     */
+/*                                                           */
+/* Elsewise, it will return 0                                */ 
+/*************************************************************/
+int findCommand(int pid){
 	for(int i = 0; i < childCount; i++){
-		if(childList[i]->pid == jid){
+		if(childList[i]->pid == pid){
 			return childList[i]->pid;
 		}
 	}
@@ -218,8 +217,7 @@ void childContinues(int pid, int bg) {
 void checkOnKids() {
 	for(int i = 0; i < childCount; i++) {
 		if(childList[i]->status == 1) {
-			int status= waitpid(childList[i]->pid, NULL, WNOHANG);
-			printf("job %i: %i\n", i, status);
+			int status = waitpid(childList[i]->pid, NULL, WNOHANG);
 			if(status > 0)
 				unaliveChild(childList[i]->pid);
 		}
