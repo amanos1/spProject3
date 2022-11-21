@@ -17,10 +17,8 @@
 When the passed line is not given with a relative or absolute path, 
 just check for built-in then in usr/bin and /bin and then say command 
 not found, current is routing to looking for file and printing no file;
-Signals need block
 */
 
-// Still need to redirect exit to the builtins function to send the signals and then free after and also interupt ctrl d to exit
 void runLine(char **args);
 char **parseLine(char *line, int *and);
 int getPid(int jid);
@@ -86,7 +84,6 @@ int main() {
 			werd[len++] = c;
 		}
 
-		if(end == 1) break;
 
 		werd[len] = '\0';
 

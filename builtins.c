@@ -16,6 +16,7 @@ void childContinues(int pid, int bg);
 int sighupIt();
 int sigcontIt();
 char *get_current_dir_name();
+int unaliveChild(int pid);
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 /*
@@ -44,8 +45,9 @@ void background(char **argv){
 			return;
 		}
 	}
-
+	childContinues(id, 1);
 	kill(id, SIGCONT);
+	
 }
 
 //Change directory
@@ -119,13 +121,11 @@ void leave(){
 //Run a suspended or background job in the foreground
 void foreground(char **argv){
 	int status;
-	//argv[0] should be the program name
-	//argv should be the array of arguments for the program
-	//jobId will be used to look up information above
 	char *job = argv[1];
 	int id;
 	if(job[0] == '%') {
 		sscanf(job, "%%%i", &id);
+		printf("%d\n", id);
 		id = getPid(id);
 		if(id == 0) {
 			printf("fg: %s: no such job\n", job);
@@ -139,9 +139,11 @@ void foreground(char **argv){
 			return;
 		}
 	}
-
+	childContinues(id, 0);
 	kill(id, SIGCONT);
 	waitpid(id, &status, 0);
+	unaliveChild(id);
+	
 }
 
 //List jobs with job id, process id, current status, and command

@@ -19,10 +19,8 @@ int childCount; // amount of children
 int maxChildren;
 Child **childList;
 
-void werj() {
-	printf("ayo dis shit working dawg?\n");
-}
 
+			
 /**********************************************************/
 /* Prints the alive children when the jobs command is run */
 /**********************************************************/
@@ -112,7 +110,7 @@ int sigcontIt(){
 }
 
 /**********************************************************/
-/* Return command NEEDS A LOT OF WORK*/ 
+/* Return command */ 
 /**********************************************************/
 int findCommand(int jid){
 	for(int i = 0; i < childCount; i++){
@@ -124,7 +122,7 @@ int findCommand(int jid){
 }
 
 /**********************************************************/
-/* Update background tag NEEDS A LOT OF WORK*/
+/* Update background tag */
 /**********************************************************/
 int updateBackground(int jid){
 	for(int i = 0; i < childCount; i++){
@@ -187,6 +185,10 @@ int unaliveChild(int pid) {
 	return pidpos;
 }
 
+/********************************************/
+/* Control + C and Control + Z handling     */
+/********************************************/
+
 void childKilled(int pid, int sig) {
 	int jobId = unaliveChild(pid);
 	printf("[%i] %i terminated by signal %i", jobId, pid, sig);
@@ -201,6 +203,10 @@ void childStopped(int pid) {
 	}
 }
 
+
+/********************************************/
+/* Updates background and status flags      */
+/********************************************/
 void childContinues(int pid, int bg) {
 	for(int i = 0; i < childCount; i++) {
 		if(pid == childList[i]->pid) {
