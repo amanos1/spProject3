@@ -29,6 +29,7 @@ void unaliveChild(int pid);
 int addChild(int id, char **input, int bg);
 void checkOnKids();
 
+
 int main() {
 	//signal(SIGINT, ctrlc);
 
@@ -89,7 +90,7 @@ int main() {
 			freeThemAll();
 			free(args);
 			break;
-		}
+		}		
 
 		int myChild = fork();
 		if(myChild == 0) {
