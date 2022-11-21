@@ -32,7 +32,6 @@ void checkOnKids();
 
 
 int main() {
-	//signal(SIGINT, ctrlc);
 
 	char *werd = malloc(2);
 
@@ -86,13 +85,13 @@ int main() {
 		char **args = parseLine(werd, &ampersand);
 
 		if(lookup(args) == 1) continue;
-
-		if(strcmp(args[0], "exit") == 0) {
+		
+		if(end == 1 || strcmp(args[0], "exit") == 0) {
 			freeThemAll();
 			free(args);
 			break;
 		}		
-
+		
 		int myChild = fork();
 		if(myChild == 0) {
 			addChild(myChild, args, ampersand);
