@@ -20,6 +20,7 @@ not found, current is routing to looking for file and printing no file;
 Signals need block
 */
 
+// Still need to redirect exit to the builtins function to send the signals and then free after and also interupt ctrl d to exit
 void runLine(char **args);
 char **parseLine(char *line, int *and);
 int getPid(int jid);
