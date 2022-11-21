@@ -29,10 +29,18 @@ void freeThemAll();
 void unaliveChild(int pid);
 int addChild(int id, char **input, int bg);
 void checkOnKids();
+void suspend(int sig);
+void terminate(int sig);
+void childStopped(int pid);
+void childKilled(int pid, int sig);
+void werj();
+
+int parent = 1;
+int favoriteChild;
+
 
 
 int main() {
-
 	char *werd = malloc(2);
 
 	if (!werd) {
@@ -44,6 +52,9 @@ int main() {
 	char *newWerd;
 	int end = 0;
 	size_t buf = 2;
+
+	signal(SIGTSTP, suspend);
+	signal(SIGINT, terminate);
 
 	//read strings until we reach an EOF
 	while(1) {
@@ -94,15 +105,20 @@ int main() {
 		
 		int myChild = fork();
 		if(myChild == 0) {
-			addChild(myChild, args, ampersand);
+			//werj();
 			runLine(args);
 			free(args);
 			break;
 		} else {
+			parent = 1;
+			addChild(myChild, args, ampersand);
 			if(ampersand == 0) {
+				printf("waaaa\n");
+				favoriteChild = myChild;
 				int status;
 				waitpid(myChild, &status, 0);
 				unaliveChild(myChild);
+				favoriteChild = 0;
 			} else {
 				//signal(SIGCHLD, )
 			}
@@ -174,4 +190,21 @@ void runLine(char **args) {
 	}
 
 	execvp(args[0], args);
+}
+
+void suspend(int sig) {
+	if(favoriteChild > 0) {
+		kill(favoriteChild, SIGSTOP);
+		childStopped(favoriteChild);
+	}
+}
+
+void terminate(int sig) {
+	if(parent == 0) {
+		exit(0);
+	}
+	if(favoriteChild > 0) {
+		kill(favoriteChild, SIGINT);
+		childKilled(favoriteChild, sig);
+	}
 }

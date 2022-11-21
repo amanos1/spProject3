@@ -12,11 +12,10 @@
 void printChildren();
 int getPid(int jid);
 int findCommand(int jid);
+void childContinues(int pid, int bg);
 int sighupIt();
 int sigcontIt();
 char *get_current_dir_name();
-
-
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 /*
