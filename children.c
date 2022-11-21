@@ -87,6 +87,31 @@ int getPid(int jid) {
 }
 
 /**********************************************************/
+/* Find all running processes*/ 
+/**********************************************************/
+int sighupIt(){
+	for(int i = 0; i < childCount; i++){
+		if(childList[i]->status == 1){
+			kill(childList[i]->pid, SIGHUP);
+		}
+	}
+	return 0;
+}
+
+/**********************************************************/
+/* Find all stopped processes*/ 
+/**********************************************************/
+int sigcontIt(){
+	for(int i = 0; i < childCount; i++){
+		if(childList[i]->status == 0){
+			kill(childList[i]->pid, SIGHUP);
+			kill(childList[i]->pid, SIGCONT);
+		}
+	}
+	return 0;
+}
+
+/**********************************************************/
 /* Return command NEEDS A LOT OF WORK*/ 
 /**********************************************************/
 int findCommand(int jid){
@@ -96,7 +121,6 @@ int findCommand(int jid){
 		}
 	}
 	return 0;
-	
 }
 
 /**********************************************************/

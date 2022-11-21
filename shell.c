@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 /************************************************************/
@@ -13,6 +13,14 @@
 /* Date: Nov 18, 2022                                       */
 /************************************************************/
 
+/*
+When the passed line is not given with a relative or absolute path, 
+just check for built-in then in usr/bin and /bin and then say command 
+not found, current is routing to looking for file and printing no file;
+Signals need block
+*/
+
+// Still need to redirect exit to the builtins function to send the signals and then free after and also interupt ctrl d to exit
 void runLine(char **args);
 char **parseLine(char *line, int *and);
 int getPid(int jid);
@@ -29,6 +37,7 @@ void werj();
 
 int parent = 1;
 int favoriteChild;
+
 
 int main() {
 	char *werd = malloc(2);
@@ -91,7 +100,7 @@ int main() {
 			freeThemAll();
 			free(args);
 			break;
-		}
+		}		
 
 		int myChild = fork();
 		if(myChild == 0) {
@@ -170,6 +179,7 @@ void runLine(char **args) {
 			strcpy(newShit, "/usr/bin/");
 			strcat(newShit, args[0]);
 			if(access(newShit, F_OK) != 0) {
+				//Args has some extra stuff that prints that I can remove
 				printf("%s: No such file or directory\n", args[0]);
 				free(newShit);
 				return;
