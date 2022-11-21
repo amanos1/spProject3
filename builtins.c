@@ -10,6 +10,8 @@
 void printChildren();
 int getPid(int jid);
 int findCommand(int jid);
+int sighupIt();
+int sigcontIt();
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 /*
@@ -71,6 +73,8 @@ int changeDir(char **argv){
 
 //Exit shell
 void leave(){
+	sighupIt();
+	sigcontIt();
 	exit(0);
 }
 
@@ -153,4 +157,3 @@ int lookup(char** cmd){
 	}
 	return 0;
 }
-
