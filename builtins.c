@@ -16,6 +16,8 @@ int sighupIt();
 int sigcontIt();
 char *get_current_dir_name();
 
+
+
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 /*
 I need to fix some of the handling for no arguments given
@@ -197,4 +199,3 @@ int lookup(char** cmd){
 	}
 	return 0;
 }
-
