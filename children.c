@@ -19,6 +19,25 @@ int childCount; // amount of children
 int maxChildren;
 Child **childList;
 
+void werj() {
+	printf("ayo dis shit working dawg?\n");
+}
+
+/**********************************************************/
+/* Prints the alive children when the jobs command is run */
+/**********************************************************/
+void printChildren() {
+	for(int i = 0; i < childCount; i++) {
+		Child *c = childList[i];
+		if(c->alive == 0) continue;
+
+		if(c->bg == 0)
+			printf("[%i] %i %s %s\n", i, c->pid, statuses[c->status], c->command);
+		else
+			printf("[%i] %i %s %s &\n", i, c->pid, statuses[c->status], c->command);
+	}
+}
+
 /****************************************/
 /* Adds process to the list of children */
 /****************************************/
@@ -36,7 +55,7 @@ void addChild(int id, char **input, int bg) {
 	}
 
 	Child *c = malloc(sizeof(Child));
-	c->command = malloc(sizeof(char) * (stringLen + strAmt + 3));
+	c->command = malloc(sizeof(char) * (stringLen + strAmt + 1));
 	c->pid = id;
 	c->status = 1;
 	c->bg = bg;
@@ -51,8 +70,6 @@ void addChild(int id, char **input, int bg) {
 		if(i < strAmt - 1) strcat(c->command, " ");
 	}
 
-	if(bg == 1) strcat(c->command, " &");
-
 	if(childCount >= maxChildren - 1) {
 		maxChildren *= 2;
 		Child **newChildren = realloc(childList, sizeof(Child*) * maxChildren);
@@ -60,7 +77,7 @@ void addChild(int id, char **input, int bg) {
 	}
 
 	childList[childCount++] = c;
-	printf("[%i] %i", childCount, id);
+	printf("[%i] %i\n", childCount-1, id);
 }
 
 int getPid(int jid) {
@@ -96,18 +113,6 @@ int updateBackground(int jid){
 	
 }
 
-/**********************************************************/
-/* Prints the alive children when the jobs command is run */
-/**********************************************************/
-void printChildren() {
-	for(int i = 0; i < childCount; i++) {
-		Child *c = childList[i];
-		if(c->alive == 0) continue;
-
-		printf("[%i] %i %s %s\n", i, c->pid, statuses[c->status], c->command);
-	}
-}
-
 /*************************************************************************************/
 /* Frees all neccesary data so there are no memory leaks when the program terminates */
 /*************************************************************************************/
@@ -141,11 +146,13 @@ void emptyOut(int newStart) {
 /*******************************************/
 /* Removes process to the list of children */
 /*******************************************/
-void unaliveChild(int pid) {
+int unaliveChild(int pid) {
+	int pidpos = -1;
 	int clearStart = 0;
 	for(int i = 0; i < childCount; i++) {
 		if(pid == childList[i]->pid) {
 			childList[i]->alive = 0;
+			pidpos = i;
 			break;
 		} else if(childList[i]->alive == 1) {
 			clearStart = i + 1;
@@ -153,6 +160,31 @@ void unaliveChild(int pid) {
 	}
 
 	if(clearStart != childCount) emptyOut(clearStart);
+	return pidpos;
+}
+
+void childKilled(int pid, int sig) {
+	int jobId = unaliveChild(pid);
+	printf("[%i] %i terminated by signal %i", jobId, pid, sig);
+}
+
+void childStopped(int pid) {
+	for(int i = 0; i < childCount; i++) {
+		if(pid == childList[i]->pid) {
+			childList[i]->status = 0;
+			return;
+		}
+	}
+}
+
+void childContinues(int pid, int bg) {
+	for(int i = 0; i < childCount; i++) {
+		if(pid == childList[i]->pid) {
+			childList[i]->status = 1;
+			childList[i]->bg = bg;
+			return;
+		}
+	}
 }
 
 /********************************************/
@@ -162,8 +194,9 @@ void unaliveChild(int pid) {
 void checkOnKids() {
 	for(int i = 0; i < childCount; i++) {
 		if(childList[i]->status == 1) {
-			int status;
-			if(waitpid(childList[i]->pid, &status, WNOHANG) > 0)
+			int status= waitpid(childList[i]->pid, NULL, WNOHANG);
+			printf("job %i: %i\n", i, status);
+			if(status > 0)
 				unaliveChild(childList[i]->pid);
 		}
 	}

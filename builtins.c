@@ -10,6 +10,7 @@
 void printChildren();
 int getPid(int jid);
 int findCommand(int jid);
+void childContinues(int pid, int bg);
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
 
