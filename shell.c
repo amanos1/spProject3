@@ -31,6 +31,7 @@ void suspend(int sig);
 void terminate(int sig);
 void childStopped(int pid);
 void childKilled(int pid, int sig);
+int isValid(char **args);
 
 int parent = 1;
 int favoriteChild;
@@ -90,7 +91,10 @@ int main() {
 		int ampersand = 0;
 		char **args = parseLine(werd, &ampersand);
 
-		if(lookup(args) == 1) continue;
+		if(lookup(args) == 1){
+			free(args);
+			continue;
+		}
 		
 		if(end == 1 || strcmp(args[0], "exit") == 0) {
 			freeThemAll();
@@ -98,9 +102,19 @@ int main() {
 			break;
 		}		
 		
+		int check = isValid(args);
+		if(check == 0){
+			if(args[0][0] == '.' || args[0][0] == '/'){
+				printf("%s: No such file or directory\n", args[0]);
+			}
+			else{
+				printf("%s: command not found\n", args[0]);
+			}
+			continue;
+		}
 		int myChild = fork();
 		if(myChild == 0) {
-			runLine(args);
+			execvp(args[0], args);
 			free(args);
 			break;
 		} else {
@@ -116,8 +130,9 @@ int main() {
 				//signal(SIGCHLD, )
 			}
 		}
-
+		printf("%s\n", args[0]);
 		free(args);
+		//printf("%s\n", args[0]);
 	}
 
 	free(werd);
@@ -164,7 +179,8 @@ char **parseLine(char *line, int *and) {
 /********************************************/
 /* Processes the  command the user inputted */
 /********************************************/
-void runLine(char **args) {
+
+int isValid(char **args){
 	if(access(args[0], F_OK) != 0) {
 		char *newShit = malloc(10 + strlen(args[0]));
 		strcpy(newShit, "/bin/");
@@ -173,16 +189,13 @@ void runLine(char **args) {
 			strcpy(newShit, "/usr/bin/");
 			strcat(newShit, args[0]);
 			if(access(newShit, F_OK) != 0) {
-				//Args has some extra stuff that prints that I can remove
-				printf("%s: No such file or directory\n", args[0]);
 				free(newShit);
-				return;
+				return 0;
 			}
 		}
 		free(newShit);
 	}
-
-	execvp(args[0], args);
+	return 1;
 }
 
 void suspend(int sig) {

@@ -198,5 +198,6 @@ int lookup(char** cmd){
 		murder(cmd);
 		return 1;
 	}
+
 	return 0;
 }
