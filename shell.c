@@ -83,7 +83,6 @@ int main() {
 			werd[len++] = c;
 		}
 
-
 		werd[len] = '\0';
 
 		checkOnKids();

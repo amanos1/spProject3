@@ -74,7 +74,7 @@ void addChild(int id, char **input, int bg) {
 	}
 
 	childList[childCount++] = c;
-	printf("[%i] %i\n", childCount-1, id);
+	if(bg == 1) printf("[%i] %i\n", childCount-1, id);
 }
 
 int getPid(int jid) {
@@ -194,7 +194,7 @@ int unaliveChild(int pid) {
 
 void childKilled(int pid, int sig) {
 	int jobId = unaliveChild(pid);
-	printf("[%i] %i terminated by signal %i", jobId, pid, sig);
+	printf("[%i] %i terminated by signal %i\n", jobId, pid, sig);
 }
 
 void childStopped(int pid) {
