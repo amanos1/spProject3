@@ -32,9 +32,9 @@ void printChildren() {
 		if(c->alive == 0) continue;
 
 		if(c->bg == 0)
-			printf("[%i] %i {%i} %s %s\n", i, c->pid, c->pgid, statuses[c->status], c->command);
+			printf("[%i] %i %s %s\n", i, c->pid, statuses[c->status], c->command);
 		else
-			printf("[%i] %i {%i} %s %s &\n", i, c->pid, c->pgid, statuses[c->status], c->command);
+			printf("[%i] %i %s %s &\n", i, c->pid, statuses[c->status], c->command);
 	}
 }
 

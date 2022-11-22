@@ -123,16 +123,12 @@ int main() {
 			if(ampersand == 0) {
 				favoriteChild = myChild;
 				int status;
-				waitpid(myChild, &status, 0);
-				unaliveChild(myChild);
+				waitpid(myChild, &status, WUNTRACED);
+				if(WIFSTOPPED(status) == 0) unaliveChild(myChild);
 				favoriteChild = 0;
-			} else {
-				//signal(SIGCHLD, )
 			}
 		}
-		printf("%s\n", args[0]);
 		free(args);
-		//printf("%s\n", args[0]);
 	}
 
 	free(werd);
@@ -141,6 +137,8 @@ int main() {
 }
 
 char **parseLine(char *line, int *and) {
+	if(strcmp(line, "") == 0) return NULL;
+
 	char spaceBar[2] = " ";
 	char *each;
 
@@ -198,9 +196,18 @@ int isValid(char **args){
 	return 1;
 }
 
+void runningAgain(int pid) {
+	favoriteChild = pid;
+	int state = 0;
+	waitpid(pid, &state, WUNTRACED);
+	if(WIFSTOPPED(state) == 0) unaliveChild(pid);
+	favoriteChild = 0;
+}
+
 void suspend(int sig) {
 	if(favoriteChild > 0) {
-		kill(favoriteChild, SIGSTOP);
+		kill(-favoriteChild, SIGSTOP);
+		write(1, "\n", sizeof("\n"));
 		childStopped(favoriteChild);
 	}
 }
@@ -210,7 +217,8 @@ void terminate(int sig) {
 		exit(0);
 	}
 	if(favoriteChild > 0) {
-		kill(favoriteChild, SIGINT);
+		kill(-favoriteChild, SIGINT);
+		write(1, "\n", sizeof("\n"));
 		childKilled(favoriteChild, sig);
 	}
 }
