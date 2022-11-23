@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include "shellFunc.h"
 
 /************************************************************/
 /* This program is a crude implementation of a linux shell. */
@@ -19,24 +20,8 @@ just check for built-in then in usr/bin and /bin and then say command
 not found, current is routing to looking for file and printing no file;
 */
 
-void runLine(char **args);
-char **parseLine(char *line, int *and);
-int getPid(int jid);
-int lookup(char** cmd);
-void freeThemAll();
-void unaliveChild(int pid);
-int addChild(int id, char **input, int bg);
-void checkOnKids();
-void suspend(int sig);
-void terminate(int sig);
-void childStopped(int pid);
-void childKilled(int pid, int sig);
-int isValid(char **args);
-
 int parent = 1;
 int favoriteChild;
-
-
 
 int main() {
 	char *werd = malloc(2);
@@ -110,6 +95,7 @@ int main() {
 			else{
 				printf("%s: command not found\n", args[0]);
 			}
+			free(args);
 			continue;
 		}
 		int myChild = fork();

@@ -8,21 +8,11 @@
 #include <signal.h>
 #include <dirent.h>
 #include <errno.h>
+#include "shellFunc.h"
 
-void printChildren();
-int getPid(int jid);
-int findCommand(int jid);
-void childContinues(int pid, int bg);
-int sighupIt();
-int sigcontIt();
 char *get_current_dir_name();
-int unaliveChild(int pid);
-void runningAgain(int pid);
 
 char *ListOfCommands[6] = {"bg", "cd", "exit", "fg", "jobs", "kill"};
-/*
-I need to fix some of the handling for no arguments given
-*/
 
 //Run a suspended job in background
 void background(char **argv){
@@ -170,12 +160,13 @@ void murder(char **argv){
 		}
 	}
 
-	printf("Killing process %d\n", id);
 	kill(id, SIGTERM);
+	childKilled(id);
 }
 
 //Find a builtin
 int lookup(char** cmd){
+	if(cmd == NULL) return 0;
 	if(strcmp(ListOfCommands[0], cmd[0]) == 0){
 		background(cmd);
 		return 1;
