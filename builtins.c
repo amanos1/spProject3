@@ -161,12 +161,12 @@ void murder(char **argv){
 	}
 
 	kill(id, SIGTERM);
-	childKilled(id);
+	childKilled(id, SIGTERM);
 }
 
 //Find a builtin
 int lookup(char** cmd){
-	if(cmd == NULL) return 0;
+	if(cmd == NULL) return 1;
 	if(strcmp(ListOfCommands[0], cmd[0]) == 0){
 		background(cmd);
 		return 1;

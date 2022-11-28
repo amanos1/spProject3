@@ -130,6 +130,8 @@ char **parseLine(char *line, int *and) {
 
 	each = strtok(line, spaceBar);
 
+	if(each == NULL) return NULL;
+
 	size_t max = 2;
 	int i;
 	char **args = malloc(sizeof(char *) * max);
